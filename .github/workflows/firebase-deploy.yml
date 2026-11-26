@@ -1,0 +1,50 @@
+name: Build and deploy website to Firebase
+on:
+  push:
+    branches: [main]
+    paths: ["website/**", ".github/workflows/firebase-deploy.yml"]
+  schedule:
+    - cron: "17 * * * *"   # hourly: picks up admin-panel posts and settings
+  workflow_dispatch:
+concurrency:
+  group: firebase-deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Firebase is connected
+        id: check
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$SA" ]; then echo "FIREBASE_SERVICE_ACCOUNT secret is missing; skipping deploy."; echo "ok=false" >> "$GITHUB_OUTPUT"; else echo "ok=true" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.check.outputs.ok == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.check.outputs.ok == 'true'
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: website/package-lock.json
+      - name: Install
+        if: steps.check.outputs.ok == 'true'
+        working-directory: website
+        run: npm ci
+      - name: Build (pulls blog posts and settings from Firestore)
+        if: steps.check.outputs.ok == 'true'
+        working-directory: website
+        run: npm run build
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+      - name: Deploy hosting and security rules
+        if: steps.check.outputs.ok == 'true'
+        working-directory: website
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          PROJECT=$(node -e "console.log(require(process.env.GOOGLE_APPLICATION_CREDENTIALS).project_id)")
+          npx --yes firebase-tools@latest deploy --only hosting,firestore:rules --project "$PROJECT" --non-interactive
+          rm -f "$RUNNER_TEMP/sa.json"
