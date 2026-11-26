@@ -41,7 +41,7 @@ export default function Nav() {
             </li>
             <li><Link className="link" href="/#process">How we work</Link></li>
             <li><Link className="link" href="/#audit">Free audit</Link></li>
-            <li><Link className="link" href="/#faq">FAQ</Link></li>
+            <li><Link className="link" href="/blog/">Blog</Link></li>
             <li><Link className="btn btn-primary" href="/#contact">Start a project</Link></li>
           </ul>
         </nav>
@@ -53,7 +53,7 @@ export default function Nav() {
         {services.map((s) => <Link key={s.slug} href={`/services/${s.slug}/`} onClick={() => setMenu(false)}>{s.name}</Link>)}
         <Link href="/#process" onClick={() => setMenu(false)}>How we work</Link>
         <Link href="/#audit" onClick={() => setMenu(false)}>Free audit</Link>
-        <Link href="/#faq" onClick={() => setMenu(false)}>FAQ</Link>
+        <Link href="/blog/" onClick={() => setMenu(false)}>Blog</Link>
         <a className="btn btn-primary" href={waLink("Hi DFE Technology! I'd like to talk about a project.")} target="_blank" rel="noopener">Chat on WhatsApp</a>
       </div>
     </header>

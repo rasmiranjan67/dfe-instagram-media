@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
 import JsonLd from "@/components/JsonLd";
 import { orgSchema } from "@/lib/schema";
 import { services, site } from "@/lib/site";
@@ -31,10 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd data={orgSchema()} />
       </head>
       <body>
-        <a href="#main" className="sr">Skip to content</a>
-        <Nav />
-        <main id="main">{children}</main>
-        <Footer />
+        {children}
       </body>
     </html>
   );

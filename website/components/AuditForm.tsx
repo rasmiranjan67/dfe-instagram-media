@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { waLink } from "@/lib/site";
+import { saveLead } from "@/lib/leads";
 export default function AuditForm() {
   const [err, setErr] = useState("");
   return (
@@ -13,6 +14,7 @@ export default function AuditForm() {
       const a = document.createElement("a");
       a.href = waLink(`Hi DFE Technology! I'd like a free website audit.\nWebsite: ${url}${nm ? "\nName: " + nm : ""}`);
       a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove();
+      saveLead({ source: "audit", name: nm, website: url, page: location.pathname });
     }}>
       <div className="field"><label htmlFor="au-url">Your website address</label><input className="inp" id="au-url" name="url" inputMode="url" placeholder="www.yourbusiness.com" /></div>
       <div className="field"><label htmlFor="au-nm">Your name</label><input className="inp" id="au-nm" name="nm" autoComplete="name" placeholder="Your name" /></div>

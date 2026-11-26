@@ -1,4 +1,5 @@
 import { homeFaqs, place, services, site } from "@/lib/site";
+import { getPosts } from "@/lib/posts";
 export const dynamic = "force-static";
 export function GET() {
   const body = [
@@ -11,6 +12,9 @@ export function GET() {
     "",
     "## Services",
     ...services.map((s) => `- [${s.name}](${site.url}/services/${s.slug}/): ${s.answer}`),
+    "",
+    "## Articles",
+    ...getPosts().slice(0, 30).map((p) => `- [${p.title}](${site.url}/blog/${p.slug}/): ${p.description}`),
     "",
     "## FAQ",
     ...homeFaqs.map((f) => `- ${f.q} ${f.a}`),

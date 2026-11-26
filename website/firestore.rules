@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Only these sign-ins can use the admin panel. Add more emails inside the list if needed.
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email in ['ADMIN_EMAIL'];
+    }
+
+    function str(v, max) { return v is string && v.size() <= max; }
+
+    // Website forms can create leads; only the admin can read or change them.
+    match /leads/{id} {
+      allow create: if request.resource.data.keys().hasOnly(['source','name','phone','business','city','needs','stage','when','message','website','page','status','createdAt'])
+        && request.resource.data.source in ['project','audit']
+        && str(request.resource.data.name, 100)
+        && str(request.resource.data.message, 2000)
+        && str(request.resource.data.website, 300)
+        && request.resource.data.needs is list && request.resource.data.needs.size() <= 8
+        && request.resource.data.status == 'new'
+        && request.resource.data.createdAt == request.time;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /posts/{id} { allow read, write: if isAdmin(); }
+    match /settings/{id} { allow read, write: if isAdmin(); }
+    match /{document=**} { allow read, write: if false; }
+  }
+}

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { site, waLink } from "@/lib/site";
 import { WaIcon } from "./Icons";
+import { saveLead } from "@/lib/leads";
 
 const NEEDS = ["Website", "Online store", "Mobile app", "Game", "Digital marketing", "SEO"];
 const STAGES = ["Just an idea", "Need a redesign", "Want more customers"];
@@ -23,7 +24,9 @@ export default function ContactForm({ preset }: { preset?: string }) {
     if (d.get("stage")) lines.push("Where I am: " + d.get("stage"));
     if (d.get("when")) lines.push("Start: " + d.get("when"));
     const msg = String(d.get("msg") || "").trim(); if (msg) lines.push("Details: " + msg);
-    return { name, text: lines.join("\n") };
+    const phone = String(d.get("phone") || "").trim(); if (phone) lines.splice(2, 0, "WhatsApp: " + phone);
+    const lead = { source: "project" as const, name, phone, business: biz, city, needs, stage: String(d.get("stage") || ""), when: String(d.get("when") || ""), message: msg, page: typeof location !== "undefined" ? location.pathname : "" };
+    return { name, text: lines.join("\n"), lead };
   }
   function valid(name: string) {
     if (!needs.length) { setErr("Pick at least one thing you need, like Website or Mobile app."); return false; }
@@ -35,7 +38,7 @@ export default function ContactForm({ preset }: { preset?: string }) {
     document.body.appendChild(a); a.click(); a.remove();
   }
   return (
-    <form className="form" noValidate onSubmit={(e) => { e.preventDefault(); const m = compose(e.currentTarget); if (valid(m.name)) open(waLink(m.text)); }}>
+    <form className="form" noValidate onSubmit={(e) => { e.preventDefault(); const m = compose(e.currentTarget); if (valid(m.name)) { open(waLink(m.text)); saveLead(m.lead); } }}>
       <fieldset>
         <legend>What do you need?</legend>
         <div className="chips">
@@ -56,12 +59,15 @@ export default function ContactForm({ preset }: { preset?: string }) {
         <div className="field"><label htmlFor="cf-name">Your name</label><input className="inp" id="cf-name" name="name" autoComplete="name" placeholder="Priya Sharma" /></div>
         <div className="field"><label htmlFor="cf-biz">Business name (optional)</label><input className="inp" id="cf-biz" name="biz" autoComplete="organization" placeholder="Sharma Jewellers" /></div>
       </div>
-      <div className="field"><label htmlFor="cf-city">Your city (optional)</label><input className="inp" id="cf-city" name="city" autoComplete="address-level2" placeholder="Bhubaneswar" /></div>
+      <div className="two">
+        <div className="field"><label htmlFor="cf-phone">WhatsApp number (optional)</label><input className="inp" id="cf-phone" name="phone" type="tel" autoComplete="tel" inputMode="tel" placeholder="98765 43210" /></div>
+        <div className="field"><label htmlFor="cf-city">Your city (optional)</label><input className="inp" id="cf-city" name="city" autoComplete="address-level2" placeholder="Your city" /></div>
+      </div>
       <div className="field"><label htmlFor="cf-msg">Anything else? (optional)</label><textarea className="inp" id="cf-msg" name="msg" placeholder="E.g. I sell handmade jewellery and want orders online" /></div>
       <p className="err" role="alert">{err}</p>
       <button className="btn btn-primary" type="submit" style={{ width: "100%", minHeight: 58 }}><WaIcon /> Send to DFE on WhatsApp</button>
       <button type="button" className="btn btn-line" style={{ width: "100%" }}
-        onClick={(e) => { const f = (e.currentTarget.form as HTMLFormElement); const m = compose(f); if (valid(m.name)) open(`mailto:${site.email}?subject=${encodeURIComponent("New project: " + needs.join(", "))}&body=${encodeURIComponent(m.text)}`, false); }}>
+        onClick={(e) => { const f = (e.currentTarget.form as HTMLFormElement); const m = compose(f); if (valid(m.name)) { saveLead(m.lead); } if (valid(m.name)) open(`mailto:${site.email}?subject=${encodeURIComponent("New project: " + needs.join(", "))}&body=${encodeURIComponent(m.text)}`, false); }}>
         Send by email instead
       </button>
     </form>

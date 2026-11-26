@@ -1,11 +1,14 @@
 // ============================================================
-//  DFE Technology — site settings. Edit these values only.
+//  DFE Technology — default site settings.
+//  Values saved in the admin panel (Settings) override these at build time.
 // ============================================================
-export const site = {
+import generated from "../content/generated/settings.json";
+
+const defaults = {
   name: "DFE Technology",
   legalName: "DFE Technology",
   // Final public address of the site (no trailing slash). Change when you buy a domain.
-  url: "https://rasmiranjan67.github.io/dfe-instagram-media",
+  url: "https://dfe-technology.web.app",
   // Contact — digits only for WhatsApp (country code first, e.g. 919876543210)
   whatsapp: "WHATSAPP_NUMBER",
   phone: "PHONE_NUMBER", // e.g. +91 98765 43210
@@ -19,7 +22,16 @@ export const site = {
   tagline: "Websites, apps, games and digital marketing built to grow your business.",
   description:
     "DFE Technology is a digital agency in India that builds fast, SEO-ready websites, Android and iOS apps and games, and runs digital marketing (social media, Meta and Google ads, SEO) that brings businesses more enquiries.",
+  // Ads & analytics (set in admin → Settings)
+  ga4Id: "",          // G-XXXXXXX
+  googleAdsId: "",    // AW-XXXXXXXXX
+  googleAdsLabel: "", // conversion label for leads
+  metaPixelId: "",    // 15-16 digit number
 };
+type Settings = typeof defaults;
+const g = generated as Partial<Settings>;
+const clean = Object.fromEntries(Object.entries(g).filter(([, v]) => typeof v === "string" && v.trim() !== "")) as Partial<Settings>;
+export const site: Settings = { ...defaults, ...clean, url: (clean.url || defaults.url).replace(/\/$/, "") };
 
 export const place = () => (site.city ? `${site.city}, ${site.country}` : site.country);
 export const waLink = (text: string) =>

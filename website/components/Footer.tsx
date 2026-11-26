@@ -13,7 +13,7 @@ export default function Footer() {
               <p style={{ maxWidth: "36ch" }}>{site.description}</p>
             </div>
             <div><h4>Services</h4><ul>{services.map((s) => <li key={s.slug}><Link href={`/services/${s.slug}/`}>{s.name}</Link></li>)}</ul></div>
-            <div><h4>Company</h4><ul><li><Link href="/#process">How we work</Link></li><li><Link href="/#audit">Free website audit</Link></li><li><Link href="/#faq">FAQ</Link></li><li><Link href="/#contact">Contact</Link></li></ul></div>
+            <div><h4>Company</h4><ul><li><Link href="/#process">How we work</Link></li><li><Link href="/#audit">Free website audit</Link></li><li><Link href="/blog/">Blog</Link></li><li><Link href="/#faq">FAQ</Link></li><li><Link href="/#contact">Contact</Link></li></ul></div>
             <div><h4>Contact</h4><ul>
               <li><a href={waLink("Hi DFE Technology!")} target="_blank" rel="noopener">WhatsApp</a></li>
               <li><a href={`tel:${site.phone.replace(/\s/g, "")}`}>{site.phone}</a></li>
